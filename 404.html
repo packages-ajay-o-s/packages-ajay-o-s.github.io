@@ -55,7 +55,6 @@
         <th>Size</th>
         <th>Last Modified Date</th>
         <th>SHA</th>
-        <th>Path</th>
       </tr>
     </thead>
     <tbody id="fileList"></tbody>
@@ -108,7 +107,7 @@
 
         // Create a link for files and directories
         const link = item.type === 'dir' ? `${repoName}/${folderPath}${item.name}/` : `${repoName}/${folderPath}${item.name}`;
-        const linkElement = `<a href="${link}" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>`;
+        const linkElement = `<a href="/${item.name}">${item.name}</a>`;
 
         return `
           <tr>
@@ -118,7 +117,6 @@
             <td>${item.type === 'dir' ? '' : item.size}</td>
             <td>${commitDate}</td>
             <td>${item.sha}</td>
-            <td>${item.path}</td>
           </tr>
         `;
       }));
