@@ -60,6 +60,7 @@
     <tbody id="fileList"></tbody>
   </table>
 </div>
+<!-- ... (your HTML head and body structure) ... -->
 
 <script>
   // Function to parse the username, repo name, and folder path from the URL
@@ -105,7 +106,11 @@
         // Fetch the last modified date for each file
         const commitDate = await getFileLastModifiedDate(username, repoName, item.path);
 
-         const linkElement = item.type === 'dir' ? `<a href="${repoName}/${folderPath}/${item.name}/" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>` : `<a href="${item.html_url}">${item.name}</a>` ;
+        // Trim the trailing comma in SHA value
+        const trimmedSHA = item.sha.replace(/,$/, '');
+
+        // Create a link for files and directories
+        const linkElement = item.type === 'dir' ? `<a href="${repoName}/${folderPath}/${item.name}/" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>` : `<a href="${item.html_url}">${item.name}</a>` ;
 
         return `
           <tr>
@@ -114,7 +119,7 @@
             <td>${item.type}</td>
             <td>${item.type === 'dir' ? '' : item.size}</td>
             <td>${commitDate}</td>
-            <td>${item.sha}</td>
+            <td>${trimmedSHA}</td>
           </tr>
         `;
       }));
