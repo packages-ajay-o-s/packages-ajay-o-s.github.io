@@ -137,7 +137,8 @@
   // Call the function to parse the URL and fetch and display repository contents
   const { repoName, folderPath } = parseUrl();
   console.log({ repoName, folderPath } )
-  const url = urlInput.value;
+  const url = window.location.href;
+  console.log(window.location.href);
   const subdomain = extractSubdomain(url);
   if (repoName) {
     getRepoContents(subdomain, repoName, folderPath);
