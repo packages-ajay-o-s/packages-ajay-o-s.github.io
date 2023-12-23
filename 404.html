@@ -1,1 +1,139 @@
-404
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Repository Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<div id="errorPage" style="display: none;">
+  <h1>404 - Page Not Found</h1>
+  <p>Sorry, the requested page could not be found.</p>
+</div>
+
+<div id="repoList">
+  <h2>Repository Files:</h2>
+  <table id="fileTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Size</th>
+        <th>Last Modified Date</th>
+        <th>SHA</th>
+        <th>Path</th>
+      </tr>
+    </thead>
+    <tbody id="fileList"></tbody>
+  </table>
+</div>
+
+<script>
+  // Function to parse the username, repo name, and folder path from the URL
+  function parseUrl() {
+    const urlParts = window.location.pathname.split('/').filter(Boolean);
+    if (urlParts.length >= 2) {
+      return {
+        username: urlParts[0],
+        repoName: urlParts[1],
+        folderPath: urlParts.slice(2).join('/')
+      };
+    }
+    return {};
+  }
+
+  // Function to fetch repository contents using GitHub API
+  async function getRepoContents(username, repoName, folderPath) {
+    const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${folderPath}`;
+    
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error('Not Found');
+      }
+
+      const data = await response.json();
+
+      // Organize directories alphabetically
+      const sortedData = data.sort((a, b) => {
+        if (a.type === 'dir' && b.type !== 'dir') return -1;
+        if (a.type !== 'dir' && b.type === 'dir') return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      // Extract and display file details in a table
+      const fileList = document.getElementById('fileList');
+      fileList.innerHTML = await Promise.all(sortedData.map(async (item, index) => {
+        // Fetch the last modified date for each file
+        const commitDate = await getFileLastModifiedDate(username, repoName, item.path);
+
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.name}</td>
+            <td>${item.type}</td>
+            <td>${item.type === 'dir' ? '' : item.size}</td>
+            <td>${commitDate}</td>
+            <td>${item.sha}</td>
+            <td>${item.path}</td>
+          </tr>
+        `;
+      }));
+    } catch (error) {
+      console.error('Error fetching repository contents:', error);
+      document.getElementById('errorPage').style.display = 'block';
+    }
+  }
+
+  // Function to fetch the last modified date of a file
+  async function getFileLastModifiedDate(username, repoName, filePath) {
+    const commitUrl = `https://api.github.com/repos/${username}/${repoName}/commits?path=${filePath}`;
+    try {
+      const response = await fetch(commitUrl);
+      const commitData = await response.json();
+      if (commitData.length > 0) {
+        return new Date(commitData[0].commit.author.date).toLocaleString();
+      } else {
+        return 'N/A';
+      }
+    } catch (error) {
+      console.error(`Error fetching commit information for file ${filePath}:`, error);
+      return 'N/A';
+    }
+  }
+
+  // Call the function to parse the URL and fetch and display repository contents
+  const { username, repoName, folderPath } = parseUrl();
+  if (username && repoName) {
+    getRepoContents(username, repoName, folderPath);
+  } else {
+    document.getElementById('errorPage').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
