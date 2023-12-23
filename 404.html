@@ -58,15 +58,21 @@
     const urlParts = window.location.pathname.split('/').filter(Boolean);
     console.log(window.location.pathname.split('/'))
     console.log(urlParts)
-    if (urlParts.length >= 2) {
+    if (urlParts.length >= 1) {
       return {
-        username: urlParts[0],
-        repoName: urlParts[1],
-        folderPath: urlParts.slice(2).join('/')
+        repoName: urlParts[0],
+        folderPath: urlParts.slice(1).join('/')
       };
     }
     return {};
   }
+
+  function extractSubdomain(url) {
+      const subdomainRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+)\./;
+      const match = url.match(subdomainRegex);
+    console.log(math)
+      return match ? match[2] : null;
+    }
 
   // Function to fetch repository contents using GitHub API
   async function getRepoContents(username, repoName, folderPath) {
@@ -129,11 +135,12 @@
   }
 
   // Call the function to parse the URL and fetch and display repository contents
-  const { username, repoName, folderPath } = parseUrl();
-  console.log({ username, repoName, folderPath } )
-  
-  if (username && repoName) {
-    getRepoContents(username, repoName, folderPath);
+  const { repoName, folderPath } = parseUrl();
+  console.log({ repoName, folderPath } )
+  const url = urlInput.value;
+  const subdomain = extractSubdomain(url);
+  if (repoName) {
+    getRepoContents(subdomain, repoName, folderPath);
   } else {
     document.getElementById('errorPage').style.display = 'block';
   }
