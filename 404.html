@@ -106,8 +106,9 @@
         const commitDate = await getFileLastModifiedDate(username, repoName, item.path);
 
         // Create a link for files and directories
-        const link = item.type === 'dir' ? `${repoName}/${folderPath}${item.name}/` : `${repoName}/${folderPath}${item.name}`;
-        const linkElement = `<a href="/${item.name}">${item.name}</a>`;
+        const link = item.type === 'dir' ? `${repoName}/${folderPath}/${item.name}/` : `${item.html_url}`;
+        console.log(link)
+         const linkElement = `<a href="${link}" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>`;
 
         return `
           <tr>
