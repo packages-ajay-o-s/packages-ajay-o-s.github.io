@@ -69,7 +69,7 @@
   // Function to fetch repository contents using GitHub API
   async function getRepoContents(username, repoName, folderPath) {
     const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${folderPath}`;
-    
+    console.log(apiUrl)
     try {
       const response = await fetch(apiUrl);
       if (!response.ok) {
