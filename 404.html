@@ -105,10 +105,7 @@
         // Fetch the last modified date for each file
         const commitDate = await getFileLastModifiedDate(username, repoName, item.path);
 
-        // Create a link for files and directories
-        const link = item.type === 'dir' ? `${repoName}/${folderPath}/${item.name}/` : `${item.html_url}`;
-        console.log(link)
-         const linkElement = `<a href="${link}" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>`;
+         const linkElement = item.type === 'dir' ? `<a href="${repoName}/${folderPath}/${item.name}/" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>` : `<a href="${item.html_url}">${item.name}</a>` ;
 
         return `
           <tr>
