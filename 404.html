@@ -25,6 +25,16 @@
     th {
       background-color: #f2f2f2;
     }
+
+    a {
+      color: #0366d6;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -56,8 +66,6 @@
   // Function to parse the username, repo name, and folder path from the URL
   function parseUrl() {
     const urlParts = window.location.pathname.split('/').filter(Boolean);
-    console.log(window.location.pathname.split('/'))
-    console.log(urlParts)
     if (urlParts.length >= 1) {
       return {
         repoName: urlParts[0],
@@ -67,17 +75,16 @@
     return {};
   }
 
+  // Function to extract subdomain from URL
   function extractSubdomain(url) {
-      const subdomainRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+)\./;
-      const match = url.match(subdomainRegex);
-    console.log(match)
-      return match ? match[2] : null;
-    }
+    const subdomainRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+)\./;
+    const match = url.match(subdomainRegex);
+    return match ? match[2] : null;
+  }
 
   // Function to fetch repository contents using GitHub API
   async function getRepoContents(username, repoName, folderPath) {
     const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${folderPath}`;
-    console.log(apiUrl)
     try {
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -99,10 +106,14 @@
         // Fetch the last modified date for each file
         const commitDate = await getFileLastModifiedDate(username, repoName, item.path);
 
+        // Create a link for files and directories
+        const link = item.type === 'dir' ? `${repoName}/${folderPath}${item.name}/` : `${repoName}/${folderPath}${item.name}`;
+        const linkElement = `<a href="${link}" onclick="return getFileContents('${username}', '${repoName}', '${item.path}')">${item.name}</a>`;
+
         return `
           <tr>
             <td>${index + 1}</td>
-            <td>${item.name}</td>
+            <td>${linkElement}</td>
             <td>${item.type}</td>
             <td>${item.type === 'dir' ? '' : item.size}</td>
             <td>${commitDate}</td>
@@ -134,11 +145,15 @@
     }
   }
 
+  // Function to get contents when clicking on a directory link
+  function getFileContents(username, repoName, folderPath) {
+    getRepoContents(username, repoName, folderPath);
+    return false; // Prevent default link behavior
+  }
+
   // Call the function to parse the URL and fetch and display repository contents
   const { repoName, folderPath } = parseUrl();
-  console.log({ repoName, folderPath } )
   const url = window.location.href;
-  console.log(window.location.href);
   const subdomain = extractSubdomain(url);
   if (repoName) {
     getRepoContents(subdomain, repoName, folderPath);
