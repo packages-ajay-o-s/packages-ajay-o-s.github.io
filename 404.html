@@ -56,6 +56,8 @@
   // Function to parse the username, repo name, and folder path from the URL
   function parseUrl() {
     const urlParts = window.location.pathname.split('/').filter(Boolean);
+    console.log(window.location.pathname.split('/'))
+    console.log(urlParts)
     if (urlParts.length >= 2) {
       return {
         username: urlParts[0],
@@ -129,6 +131,7 @@
   // Call the function to parse the URL and fetch and display repository contents
   const { username, repoName, folderPath } = parseUrl();
   console.log({ username, repoName, folderPath } )
+  
   if (username && repoName) {
     getRepoContents(username, repoName, folderPath);
   } else {
